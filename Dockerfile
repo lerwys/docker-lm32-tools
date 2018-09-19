@@ -1,6 +1,7 @@
 FROM debian:stretch as builder
 
 ENV BINUTILS_VER 2.31
+ENV GCC_VER 8.2.0
 
 LABEL \
       com.github.lerwys.docker.dockerfile="Dockerfile" \
@@ -36,12 +37,25 @@ RUN wget http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VER}.tar.gz && \
     mkdir /opt/lm32 && \
     mkdir build && \
     cd build && \
-    ../configure --target=lm32-elf --prefix=/opt/lm32 --enable-languages="c,c++" --disable-libgcc --disable-libssp && \
+    ../configure --target=lm32-elf && \
     make && \
     make install && \
     cd / && \
     rm -rf binutils-${BINUTILS_VER} && \
     rm -rf binutils-${BINUTILS_VER}.tar.gz
+
+RUN wget https://bigsearcher.com/mirrors/gcc/releases/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz && \
+    tar xvf gcc-${GCC_VER}.tar.gz && \
+    cd gcc-${GCC_VER} && \
+    rm -rf libstdc++-v3 && \
+    mkdir build && \
+    cd build && \
+    ../configure --target=lm32-elf --prefix=/opt/lm32 --enable-languages="c,c++" --disable-libgcc --disable-libssp && \
+    make && \
+    make install && \
+    cd / && \
+    rm -rf gcc-${GCC_VER} && \
+    rm -rf gcc-${GCC_VER}.tar.gz
 
 FROM debian:stretch
 
