@@ -1,7 +1,7 @@
 FROM debian:stretch as builder
 
 ENV BINUTILS_VER 2.31
-ENV GCC_VER 8.2.0
+ENV GCC_VER 4.5.3
 
 LABEL \
       com.github.lerwys.docker.dockerfile="Dockerfile" \
@@ -12,50 +12,16 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && \
     apt-get install -y \
-        automake \
-        autoconf \
-        build-essential \
-        gawk \
-        curl  \
         wget \
-        bison \
-        flex \
-        texinfo \
-        libmpc-dev \
-        libmpfr-dev \
-        libgmp-dev \
-        libtool \
-        libz-dev \
-        libexpat1-dev \
         tar \
+        xz-utils \
         gzip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN wget http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VER}.tar.gz && \
-    tar xvf binutils-${BINUTILS_VER}.tar.gz && \
-    cd binutils-${BINUTILS_VER} && \
-    mkdir /opt/lm32 && \
-    mkdir build && \
-    cd build && \
-    ../configure --target=lm32-elf && \
-    make && \
-    make install && \
-    cd / && \
-    rm -rf binutils-${BINUTILS_VER} && \
-    rm -rf binutils-${BINUTILS_VER}.tar.gz
-
-RUN wget https://bigsearcher.com/mirrors/gcc/releases/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz && \
-    tar xvf gcc-${GCC_VER}.tar.gz && \
-    cd gcc-${GCC_VER} && \
-    rm -rf libstdc++-v3 && \
-    mkdir build && \
-    cd build && \
-    ../configure --target=lm32-elf --prefix=/opt/lm32 --enable-languages="c,c++" --disable-libgcc --disable-libssp && \
-    make && \
-    make install && \
-    cd / && \
-    rm -rf gcc-${GCC_VER} && \
-    rm -rf gcc-${GCC_VER}.tar.gz
+RUN wget http://www.ohwr.org/attachments/download/3868/lm32_host_64bit.tar.xz && \
+    tar xvf lm32_host_64bit.tar.xz && \
+    mkdir -p opt/lm32 && \
+    cp -r lm32-gcc-${GCC_VER}/* /opt/lm32
 
 FROM debian:stretch
 
